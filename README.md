@@ -1,62 +1,42 @@
-# Nextfolio
+# manishkreddy.com
 
-A clean, fast, and lightweight portfolio template built with [Next.js](https://nextjs.org/), [Vercel](https://vercel.com/), and [Tailwind CSS](https://tailwindcss.com/) for optimal performance.
+Personal portfolio of **Manish K Reddy** — Google Summer of Code 2025 contributor, venture analyst, deep tech entrepreneur.
 
-Deploy your Nextfolio site with Vercel in minutes.
+Live at [manishkreddy.com](https://manishkreddy.com).
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2F1msirius%2FNextfolio)
+## Stack
 
-## Technologies Used
+- [Next.js](https://nextjs.org/) 15 (App Router)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Geist](https://vercel.com/font) (Sans + Mono)
+- MDX via [next-mdx-remote](https://github.com/hashicorp/next-mdx-remote)
+- Hosted on [Vercel](https://vercel.com/), DNS at Namecheap
+- Bootstrapped from the [Nextfolio](https://github.com/1msirius/Nextfolio) template — a full revamp is planned
 
-- Framework: [Next.js](https://nextjs.org/)
-- Typography: [Vercel Geist Font](https://vercel.com/font)
-- Styling: [Tailwind CSS](https://tailwindcss.com/)
-- Analytics: [Vercel Web Analytics](https://vercel.com/docs/speed-insights) and [Speed Insights](https://vercel.com/docs/speed-insights)
-- Deployment: [Vercel](https://vercel.com/)
+## Local development
 
-## Features
+Requires [pnpm](https://pnpm.io/installation).
 
-- **[MDX](https://mdxjs.com/) Support**: Use Markdown with JSX components for blog posts.
-- **Light and Dark Mode Toggle**: Switch between themes for better readability.
-- **Dynamic [OG Images](https://vercel.com/docs/functions/og-image-generation)**: Auto-generate Open Graph images for sharing.
-- **SEO Optimization**: Enhance search visibility with sitemap, robots.txt, and JSON-LD schema.
-- **Dynamic Feed Generation**: Automatic dynamic [RSS](https://nextfolio-template.vercel.app/rss.xml), [Atom](https://nextfolio-template.vercel.app/atom.xml), and [JSON](https://nextfolio-template.vercel.app/feed.json) feeds.
-- **[KaTeX](https://katex.org/) Integration**: Render mathematical expressions smoothly.
-- **Performance Tracking**: Monitor web performance with [Vercel Web Analytics](https://vercel.com/docs/speed-insights) and [Speed Insights](https://vercel.com/docs/speed-insights).
-- **Interactive Embeds**: Easily embed interactive tweets and YouTube videos.
-- **Captions**: Add descriptive captions to photos, tweets, and videos.
-- **Image Grid**: Easily showcase image galleries or photos.
-
-## Installation
-
-Nextfolio uses [pnpm](https://pnpm.io/installation) for dependency management, so ensure it is installed on your system.
-
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [pnpm](https://pnpm.io/installation) to bootstrap the example:
-
-```
-pnpm create next-app --example https://github.com/1msirius/Nextfolio my-portfolio
-```
-
-Start the development server:
-
-```
+```bash
+pnpm install
 pnpm dev
 ```
 
-The server will be running at [http://localhost:3000](http://localhost:3000).
+Dev server runs at [http://localhost:3000](http://localhost:3000).
 
-## Configuration
+## Project layout
 
-1. Update the site metadata and social links in `app/config.ts` to set up SEO, feeds, social links, and Open Graph settings.
-2. Update your routes in `app/sitemap.ts` for SEO optimization.
-3. Update your blog posts in the `/content` folder.
+- `app/` — App Router pages, components, layout, config
+- `app/page.tsx` — homepage (hero, experience timeline, project carousel)
+- `app/config.ts` — site metadata + social links
+- `app/projects/project-data.ts` — featured projects feed
+- `content/` — MDX blog posts (currently empty)
+- `public/` — static assets (profile photo, OG image, project photos)
 
-For more information about configuration, follow the instructions in the [Getting Started](https://nextfolio-template.vercel.app/blog/getting-started#configuration) post.
+## Deployment
 
-## Contributing
+Pushes to `main` auto-deploy via Vercel. Build runs `next build`; output is served from `.next` with the **Next.js** framework preset (do **not** leave the preset as "Other" — it serves edge 404s).
 
-Contributions are welcome! To get involved, just push your code to the repo. Whether you're enhancing existing features or adding new ones, your efforts are greatly appreciated!
+## License
 
-## Licence
-
-Nextfolio is open-source and released under the MIT License.
+MIT — see [LICENSE](LICENSE).
