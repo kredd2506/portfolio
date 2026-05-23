@@ -1,10 +1,10 @@
 export const metaData = {
   baseUrl: "https://manishkreddy.com/",
-  title: "My Portfolio",
+  title: "Manish K Reddy",
   name: "Manish K Reddy",
   ogImage: "/opengraph-image.png",
   description:
-    "A clean, fast, and lightweight portfolio template built with Next.js, Vercel, and Tailwind CSS for optimal performance.",
+    "Manish K Reddy — ML compilers, agentic infrastructure, and the occasional well-placed bet. Atlanta.",
 };
 
 export const socialLinks = {

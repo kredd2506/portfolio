@@ -1,543 +1,482 @@
-'use client';
+"use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useState, useRef } from "react";
-import { FaGoogle, FaChartLine, FaLaptopCode, FaWater, FaVrCardboard, FaBook, FaUniversity, FaGraduationCap } from "react-icons/fa";
-import { FaArrowRight, FaArrowLeft } from "react-icons/fa6";
-import { FaTwitter, FaGithub, FaInstagram, FaLinkedin, FaEnvelope } from "react-icons/fa";
-import { socialLinks } from "./config";
-import { projects } from "./projects/project-data";
+import { useEffect, useState } from "react";
 
-// Component for animated sections with scroll reveal
-const AnimatedSection = ({ children, className = "", delay = 0 }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef(null);
+const NAME_FIRST = "Manish";
+const NAME_LAST = "K Reddy";
+const FULL_NAME = `${NAME_FIRST} ${NAME_LAST}`;
+const LOCATION = "atlanta";
+const SECTIONS = ["about", "research", "experience"] as const;
+type Section = (typeof SECTIONS)[number];
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        // Add a small delay for staggered animations
-        setTimeout(() => {
-          setIsVisible(entry.isIntersecting);
-        }, delay);
-      },
-      {
-        threshold: 0.1, // Trigger when 10% of the element is visible
-        rootMargin: "-50px", // Trigger slightly before the element is in view
-      }
-    );
+const scrollTo = (id: string) => {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+};
 
-    const currentRef = sectionRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-    };
-  }, [delay]);
-
+function Tile({
+  id,
+  klass,
+  label,
+  caption,
+}: {
+  id: string;
+  klass: string;
+  label: string;
+  caption: string;
+}) {
   return (
-    <section 
-      ref={sectionRef}
-      className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} ${className}`}
-    >
-      {children}
+    <div className="hero-tile" data-tile={id}>
+      <div className={`ph ${klass}`}>
+        <span>{label}</span>
+      </div>
+      <div className="cap">{caption}</div>
+    </div>
+  );
+}
+
+function RailTile({
+  klass,
+  label,
+  aspect,
+}: {
+  klass: string;
+  label: string;
+  aspect?: "wide";
+}) {
+  return (
+    <div className={`tile ${aspect === "wide" ? "wide" : ""}`}>
+      <div className={`ph ${klass}`}>
+        <span>{label}</span>
+      </div>
+    </div>
+  );
+}
+
+function Hero() {
+  return (
+    <section className="hero">
+      <div className="hero-name">{FULL_NAME}</div>
+      <nav className="hero-nav">
+        {SECTIONS.map((s) => (
+          <button key={s} onClick={() => scrollTo(s)}>
+            {s}
+          </button>
+        ))}
+      </nav>
+      <Tile id="1" klass="a" label="portrait" caption="portrait.jpg · atlanta, 2025" />
+      <Tile id="2" klass="b" label="atlanta skyline" caption="skyline.jpg · piedmont, dusk" />
+      <Tile id="3" klass="c" label="motorcycle" caption="ride.jpg · north ga, sept" />
+      <Tile id="4" klass="d" label="workstation / gpus" caption="workstation.jpg · home lab" />
     </section>
   );
-};
+}
 
-// Timeline Item Component with optional logo
-const TimelineItem = ({ date, title, organization, description, icon: Icon, isLeft = true, isCurrent = false, logo = null }: {
-  date: string;
-  title: string;
-  organization: string;
-  description: string | string[];
-  icon: React.ComponentType<any>;
-  isLeft?: boolean;
-  isCurrent?: boolean;
-  logo?: React.ReactNode;  // Changed from null to React.ReactNode
-}) => {
-  return (
-    <div className={`flex flex-col md:flex-row w-full mb-12 ${isLeft ? '' : 'md:flex-row-reverse'}`}>
-      {/* Left content for desktop */}
-      <div className={`md:w-5/12 ${isLeft ? 'md:text-right md:pr-8' : 'md:text-left md:pl-8'}`}>
-        <div className="mb-2">
-          <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${isCurrent ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'}`}>
-            {date}
-          </span>
-        </div>
-        <h3 className="text-xl font-bold mb-1">{title}</h3>
-        <p className="text-gray-600 dark:text-gray-400 mb-2">{organization}</p>
-        {Array.isArray(description) ? (
-          <ul className={`list-disc ${isLeft ? 'md:ml-4' : 'md:mr-4'} ml-4 text-gray-700 dark:text-gray-300 text-sm space-y-1`}>
-            {description.map((item, i) => (
-              <li key={i}>{item}</li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-700 dark:text-gray-300 text-sm">{description}</p>
-        )}
-        
-        {/* Logo for mobile view */}
-        {logo && (
-          <div className="block md:hidden mt-4">
-            {logo}
-          </div>
-        )}
-      </div>
-      
-      {/* Center line with icon - hidden on mobile, visible on md and up */}
-      <div className="hidden md:flex w-2/12 justify-center relative">
-        <div className="h-full w-1 bg-gray-200 dark:bg-gray-700"></div>
-        <div className="absolute w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white">
-          <Icon className="w-5 h-5" />
-        </div>
-      </div>
-      
-      {/* Icon for mobile view */}
-      <div className="flex md:hidden items-center mb-2">
-        <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white mr-3">
-          <Icon className="w-5 h-5" />
-        </div>
-      </div>
-      
-      {/* Right side - can contain logo for desktop view */}
-      <div className="hidden md:block md:w-5/12">
-        {logo && (
-          <div className="flex items-center justify-center h-full">
-            {logo}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Social Icon Component
-const SocialIcon = ({ href, icon: Icon, label }) => {
-  return (
-    <a 
-      href={href} 
-      target="_blank" 
-      rel="noopener noreferrer"
-      className="group flex flex-col items-center justify-center"
-      aria-label={label}
-    >
-      <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-gray-700 dark:text-gray-300 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300 transform group-hover:scale-110">
-        <Icon className="w-6 h-6" />
-      </div>
-      <span className="mt-2 text-xs text-gray-600 dark:text-gray-400 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors">
-        {label}
-      </span>
-    </a>
-  );
-};
-
-// Project Carousel Component with rotating photo effect and liquid glass
-const ProjectCarousel = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const maxIndex = projects.length - 1;
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  
-  const nextProject = () => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setCurrentIndex(currentIndex === maxIndex ? 0 : currentIndex + 1);
-    setTimeout(() => setIsTransitioning(false), 500);
-  };
-  
-  const prevProject = () => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setCurrentIndex(currentIndex === 0 ? maxIndex : currentIndex - 1);
-    setTimeout(() => setIsTransitioning(false), 500);
-  };
-
-  // Auto-rotate projects every 5 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      nextProject();
-    }, 5000);
-    
-    return () => clearInterval(interval);
-  }, [currentIndex]);
-  
-  return (
-    <div className="relative w-full my-12">
-      <div className="glassmorphism rounded-xl p-8 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 backdrop-blur-sm z-0 rounded-xl"></div>
-        
-        <div className="relative z-10">
-          {/* Project Image */}
-          <div className="w-full h-48 md:h-64 mb-6 relative overflow-hidden rounded-lg">
-            <div className={`w-full h-full transition-opacity duration-500 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-              <div className="w-full h-full bg-gray-200 dark:bg-gray-700 rounded-lg relative">
-                <Image
-                  src={`/photos/photo${(currentIndex % 6) + 1}.jpg`}
-                  alt={projects[currentIndex].title}
-                  fill
-                  className="object-cover rounded-lg"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 p-4 text-white">
-                  <h3 className="text-2xl font-bold">{projects[currentIndex].title}</h3>
-                  <span className="text-sm font-medium px-3 py-1 bg-blue-500/80 rounded-full">
-                    {projects[currentIndex].year}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <p className="mb-6 text-gray-700 dark:text-gray-300">
-            {projects[currentIndex].description}
-          </p>
-          
-          <div className="flex justify-between items-center">
-            <a 
-              href={projects[currentIndex].url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-blue-600 dark:text-blue-400 hover:underline flex items-center"
-            >
-              View Project <FaArrowRight className="ml-2" />
-            </a>
-            
-            <div className="flex space-x-3">
-              <button 
-                onClick={prevProject}
-                className="w-10 h-10 rounded-full bg-white/80 dark:bg-gray-800/80 flex items-center justify-center text-gray-800 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-700 transition-colors"
-                disabled={isTransitioning}
-              >
-                <FaArrowLeft />
-              </button>
-              <button 
-                onClick={nextProject}
-                className="w-10 h-10 rounded-full bg-white/80 dark:bg-gray-800/80 flex items-center justify-center text-gray-800 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-700 transition-colors"
-                disabled={isTransitioning}
-              >
-                <FaArrowRight />
-              </button>
-            </div>
-          </div>
-          
-          <div className="flex justify-center mt-6">
-            {projects.map((_, index) => (
-              <button 
-                key={index} 
-                onClick={() => {
-                  if (!isTransitioning) {
-                    setIsTransitioning(true);
-                    setCurrentIndex(index);
-                    setTimeout(() => setIsTransitioning(false), 500);
-                  }
-                }}
-                className={`w-2 h-2 mx-1 rounded-full ${index === currentIndex ? 'bg-blue-600 dark:bg-blue-400' : 'bg-gray-300 dark:bg-gray-600'}`}
-                aria-label={`Go to project ${index + 1}`}
-                disabled={isTransitioning}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default function HomePage() {
-  const experiences = [
-    {
-      date: "2025",
-      title: "Google Summer of Code Contributor",
-      organization: "OSPO, UC Santa Cruz | Chicago, IL",
-      description: [
-        "Selected within the top 8% of applicants to develop a containerized Agentic AI platform for the NRP cluster, serving 70+ institutions across 3 continents. Delivered open-source code, Docker images, and comprehensive user documentation.",
-        "Integrated GPU-backed Large Language Models (LLMs) with operational data to power a GenAI narrative and root cause analysis in the Seam portal, significantly accelerating troubleshooting processes."
-      ],
-      isCurrent: true,
-      icon: FaGoogle,
-      logo: (
-        <a 
-          href="https://summerofcode.withgoogle.com/programs/2025/projects/fPp1JXbl" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="inline-block transition-transform hover:scale-105 duration-300"
-        >
-          <div className="relative w-80 h-40 overflow-hidden rounded-lg shadow-md">
-            <Image
-              src="/photos/GSoC_logo.jpg"
-              alt="Google Summer of Code"
-              fill
-              className="object-contain"
-            />
-          </div>
-        </a>
-      )
-    },
-    {
-      date: "2024 - 2025",
-      title: "Genisys Venture Analyst",
-      organization: "Kaplan Institute | Chicago, IL",
-      description: [
-        "Conducted due diligence on 2 deep tech projects (AI and sustainability), providing strategic insights that guided a $6 million TechForward Investment through data-driven decision-making and cross-functional collaboration.",
-        "Collaborated with multidisciplinary teams to evaluate financial models, market potential, and IP strategies, ultimately securing $350K in high-impact funding by applying robust stakeholder alignment frameworks and risk assessment models."
-      ],
-      icon: FaChartLine,
-      logo: (
-        <a 
-          href="https://www.iit.edu/kaplan-institute" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="inline-block transition-transform hover:scale-105 duration-300"
-        >
-          <div className="relative w-80 h-40 overflow-hidden rounded-lg shadow-md">
-            <Image
-              src="/photos/KI-logo.jpg"
-              alt="Kaplan Institute"
-              fill
-              className="object-contain"
-            />
-          </div>
-        </a>
-      )
-    },
-    {
-      date: "2023 - 2024",
-      title: "Founder, CEO",
-      organization: "H2.0 Resilience | Chicago, IL",
-      description: [
-        "Identified and assessed 3 market opportunities for an explainable AI flood risk tool, developing a novel flood mitigation solution that generated interest from 5+ government agencies. Presented compelling insights to executive leadership.",
-        "Reduced flood evaluation time by 90% by implementing Transformer decoders, which enhanced data visualization and stakeholder insights to support informed risk assessment strategies."
-      ],
-      icon: FaWater
-    }
+function Ticker() {
+  const items: Array<[string, string]> = [
+    ["now", "atlanta, ga"],
+    ["compiling", "project helix · ontology-first agents"],
+    ["shipping", "numina pilot — first b2b var"],
+    ["drafting", "tpu v6e vs h200 vs mi300x paper"],
+    ["merged", "openxla/xla pr #40232"],
+    ["reading", "the structure of scientific revolutions"],
+    ["listening", "king krule · alice coltrane"],
   ];
-
+  const all = [...items, ...items];
   return (
-    <div className="space-y-20">
-      {/* Hero Section */}
-      <AnimatedSection className="flex flex-col-reverse md:flex-row items-center gap-8" delay={0}>
-        <div className="flex-1">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 text-transparent bg-clip-text">
-            Hi, I'm Manish K Reddy
-          </h1>
-          
-          <p className="text-lg mb-6 text-gray-700 dark:text-gray-300">
-            I translate cutting-edge technology into real-world impact as a <span className="font-semibold">Google Summer of Code contributor, venture analyst, and deep tech entrepreneur</span>.
-          </p>
-          
-          <p className="mb-6 text-gray-700 dark:text-gray-300">
-            With a strong foundation in <span className="font-semibold">computer science</span> and hands-on experience across <span className="font-semibold">AI/ML, cloud-native deployments, and startup strategy</span>, I've helped build and evaluate transformative technologies.
-          </p>
-          
-          <div className="flex gap-4 mb-10">
-            <Link 
-              href="/resume" 
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-            >
-              View Full Resume
-            </Link>
-            <Link 
-              href="/academics" 
-              className="px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg transition-colors"
-            >
-              Academic Background
-            </Link>
-          </div>
-          
-          {/* Social Links - Larger and cleaner */}
-          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-800">
-            <h3 className="text-lg font-medium mb-4 text-gray-700 dark:text-gray-300">Connect with me</h3>
-            <div className="flex justify-between max-w-md">
-              <a 
-                href={socialLinks.twitter} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="group"
-                aria-label="Twitter"
-              >
-                <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-700 dark:text-gray-300 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300 transform group-hover:scale-110 shadow-sm">
-                  <FaTwitter className="w-7 h-7" />
-                </div>
-              </a>
-              <a 
-                href={socialLinks.github} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="group"
-                aria-label="GitHub"
-              >
-                <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-700 dark:text-gray-300 group-hover:bg-gray-900 group-hover:text-white transition-all duration-300 transform group-hover:scale-110 shadow-sm">
-                  <FaGithub className="w-7 h-7" />
-                </div>
-              </a>
-              <a 
-                href={socialLinks.linkedin} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="group"
-                aria-label="LinkedIn"
-              >
-                <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-700 dark:text-gray-300 group-hover:bg-blue-700 group-hover:text-white transition-all duration-300 transform group-hover:scale-110 shadow-sm">
-                  <FaLinkedin className="w-7 h-7" />
-                </div>
-              </a>
-              <a 
-                href={socialLinks.instagram} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="group"
-                aria-label="Instagram"
-              >
-                <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-700 dark:text-gray-300 group-hover:bg-gradient-to-br group-hover:from-purple-600 group-hover:to-pink-500 group-hover:text-white transition-all duration-300 transform group-hover:scale-110 shadow-sm">
-                  <FaInstagram className="w-7 h-7" />
-                </div>
-              </a>
-              <a 
-                href={socialLinks.email} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="group"
-                aria-label="Email"
-              >
-                <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-700 dark:text-gray-300 group-hover:bg-red-500 group-hover:text-white transition-all duration-300 transform group-hover:scale-110 shadow-sm">
-                  <FaEnvelope className="w-7 h-7" />
-                </div>
-              </a>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex-shrink-0">
-          <a href={socialLinks.linkedin} target="_blank" rel="noopener noreferrer">
-            <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-blue-500 dark:border-blue-400 shadow-xl hover:scale-105 transition-transform duration-300">
-              <Image
-                src="/profile.png"
-                alt="Manish K Reddy"
-                fill
-                className="object-cover grayscale hover:grayscale-0 transition-all duration-500"
-                priority
-              />
-            </div>
-          </a>
-        </div>
-      </AnimatedSection>
-      
-      {/* Experience Section */}
-      <AnimatedSection delay={200}>
-        <h2 className="text-3xl font-bold mb-12 text-center">Recent Experience</h2>
-        
-        <div className="w-full">
-          {experiences.map((exp, index) => (
-            <TimelineItem 
-              key={index}
-              date={exp.date}
-              title={exp.title}
-              organization={exp.organization}
-              description={exp.description}
-              isLeft={index % 2 === 0}
-              isCurrent={exp.isCurrent}
-              icon={exp.icon}
-              logo={exp.logo}
-            />
-          ))}
-        </div>
-        
-        <div className="text-center mt-8">
-          <Link 
-            href="/resume" 
-            className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-          >
-            View Complete Resume <FaArrowRight className="ml-2" />
-          </Link>
-        </div>
-      </AnimatedSection>
-      
-      {/* Featured Projects Section */}
-      <AnimatedSection delay={400}>
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold">Featured Projects</h2>
-          <Link 
-            href="/projects" 
-            className="text-blue-600 dark:text-blue-400 hover:underline flex items-center"
-          >
-            View All <FaArrowRight className="ml-2" />
-          </Link>
-        </div>
-        
-        <ProjectCarousel />
-      </AnimatedSection>
-      
-      {/* Add custom styles for glassmorphism with liquid effect */}
-      <style jsx global>{`
-        .glassmorphism {
-          background: rgba(255, 255, 255, 0.1);
-          box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-          backdrop-filter: blur(4px);
-          -webkit-backdrop-filter: blur(4px);
-          border: 1px solid rgba(255, 255, 255, 0.18);
-          transition: all 0.3s ease;
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .glassmorphism:hover {
-          box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.25);
-          transform: translateY(-5px);
-        }
-        
-        .glassmorphism::before {
-          content: '';
-          position: absolute;
-          top: -50%;
-          left: -50%;
-          width: 200%;
-          height: 200%;
-          background: linear-gradient(
-            to bottom right,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.1) 50%,
-            rgba(255, 255, 255, 0) 100%
-          );
-          transform: rotate(30deg);
-          animation: liquidShine 8s linear infinite;
-          z-index: 1;
-          pointer-events: none;
-        }
-        
-        @keyframes liquidShine {
-          0% {
-            transform: rotate(30deg) translate(-30%, -30%);
-          }
-          100% {
-            transform: rotate(30deg) translate(30%, 30%);
-          }
-        }
-        
-        .dark .glassmorphism {
-          background: rgba(30, 41, 59, 0.2);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        
-        .dark .glassmorphism::before {
-          background: linear-gradient(
-            to bottom right,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.05) 50%,
-            rgba(255, 255, 255, 0) 100%
-          );
-        }
-        
-        @media (max-width: 768px) {
-          .glassmorphism:hover {
-            transform: none;
-          }
-        }
-      `}</style>
+    <div className="ticker" aria-label="status">
+      <div className="ticker-track">
+        {all.map(([k, v], i) => (
+          <span key={i}>
+            <span className="pulse" />
+            <span style={{ opacity: 0.55 }}>{k}</span>
+            <span className="dot">▸</span>
+            <span>{v}</span>
+          </span>
+        ))}
+      </div>
     </div>
   );
-} 
+}
+
+function StickyBar() {
+  const [show, setShow] = useState(false);
+  const [active, setActive] = useState<Section>("about");
+  useEffect(() => {
+    const onScroll = () => {
+      setShow(window.scrollY > window.innerHeight * 0.6);
+      const offset = window.innerHeight * 0.4;
+      let current: Section = "about";
+      for (const s of SECTIONS) {
+        const el = document.getElementById(s);
+        if (el && el.getBoundingClientRect().top - offset < 0) current = s;
+      }
+      setActive(current);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return (
+    <div className={`stickbar ${show ? "show" : ""}`}>
+      <div className="nm">{FULL_NAME}</div>
+      <nav>
+        {SECTIONS.map((s) => (
+          <button
+            key={s}
+            className={active === s ? "active" : ""}
+            onClick={() => scrollTo(s)}
+          >
+            {s}
+          </button>
+        ))}
+      </nav>
+      <div className="loc">
+        {LOCATION} · {new Date().getFullYear()}
+      </div>
+    </div>
+  );
+}
+
+function About() {
+  return (
+    <div id="about" className="body-wrap">
+      <aside className="sidebar">
+        <div className="portrait">
+          <div className="ph a" style={{ position: "absolute", inset: 0 }}>
+            <span>portrait</span>
+          </div>
+        </div>
+        <h1>
+          {NAME_FIRST} <em>{NAME_LAST}</em>
+        </h1>
+        <p>
+          hi, i&apos;m Manish! i live in <em>Atlanta</em> and recently finished my MS in computer science at <em>Illinois Tech</em>. i spend my time somewhere between <em>ML compilers</em>, <em>agentic infrastructure</em>, and building a company, and i&apos;m figuring out which of those to bet the next few years on — possibly a <em>PhD</em>.
+        </p>
+        <p>
+          i&apos;m excited to meet people who love building things: products, compilers, companies, communities — so don&apos;t hesitate to reach out!!
+        </p>
+        <div className="links">
+          <a href="mailto:kreddy.manish@gmail.com">email</a>
+          <a href="https://www.linkedin.com/in/manishkreddy/" target="_blank" rel="noopener noreferrer">linkedin</a>
+          <a href="https://github.com/kredd2506" target="_blank" rel="noopener noreferrer">github</a>
+        </div>
+
+        <div className="now-block">
+          <div className="now-h">now</div>
+          <div className="now-row">
+            <span className="k">reading</span>
+            <span className="v"><em>kuhn</em>, <em>winograd &amp; flores</em></span>
+          </div>
+          <div className="now-row">
+            <span className="k">building</span>
+            <span className="v">helix · numina pilot</span>
+          </div>
+          <div className="now-row">
+            <span className="k">drafting</span>
+            <span className="v">tpu benchmark paper</span>
+          </div>
+        </div>
+      </aside>
+
+      <main className="main">
+        <div className="sect-prefix">
+          <span>§ 01 / about</span> <span className="accent">—</span>{" "}
+          <span>what i&apos;m pursuing</span>
+        </div>
+        <h2>what i&apos;m pursuing</h2>
+        <ol className="numlist">
+          <li>
+            <span className="n">01</span>
+            <span className="b">
+              contributing to <a href="https://github.com/openxla/xla" target="_blank" rel="noopener noreferrer" className="arrow">OpenXLA</a> on the <em>HLO verifier</em> and numerical correctness, with merged PRs to <em>openxla/xla</em> — my favorite kind of contribution is the small one that surfaces five silent crash bugs downstream
+            </span>
+          </li>
+          <li>
+            <span className="n">02</span>
+            <span className="b">
+              co-founding <a href="#" className="arrow">Numina AI</a>, where we&apos;re building <em>AI-native workflow infrastructure</em> for small CPA firms serving SMBs — currently preparing an angel round and onboarding our first pilot
+            </span>
+          </li>
+          <li>
+            <span className="n">03</span>
+            <span className="b">
+              engineering <em>agentic AI infrastructure</em> at CONA Services for Coca-Cola&apos;s bottling operations across <em>500+ servers</em> and <em>11 bottlers</em>, leading an ontology-first architecture initiative to replace bloated instruction files with a structured knowledge layer
+            </span>
+          </li>
+          <li>
+            <span className="n">04</span>
+            <span className="b">
+              writing a cross-platform benchmarking paper comparing <em>TPU v6e</em>, <em>H200</em>, and <em>MI300X</em> — follow-up to my Google Summer of Code work at SDSC / UC Santa Cruz on GPU observability
+            </span>
+          </li>
+          <li>
+            <span className="n">05</span>
+            <span className="b">
+              exploring <em>PhD programs</em> in ML systems and compilers — the cascade-bug work and the TPU benchmarking are the threads i&apos;d most want to pull on next
+            </span>
+          </li>
+          <li>
+            <span className="n">06</span>
+            <span className="b">
+              finding ways to make a real dent through <em>infrastructure</em>, <em>research</em>, and the occasional well-placed bet
+            </span>
+          </li>
+        </ol>
+      </main>
+
+      <aside className="right-rail">
+        <RailTile klass="b" label="atlanta, dusk" />
+        <RailTile klass="e" label="ride, north ga" aspect="wide" />
+        <RailTile klass="d" label="kitchen / sunday" />
+        <RailTile klass="f" label="desk, late" aspect="wide" />
+      </aside>
+    </div>
+  );
+}
+
+function Research() {
+  return (
+    <div id="research" className="body-wrap">
+      <aside className="sidebar">
+        <div className="section-label">research</div>
+        <p>compilers, accelerators, and the agent infrastructure i&apos;m building around them.</p>
+      </aside>
+
+      <main className="main">
+        <div className="sect-prefix">
+          <span>§ 02 / research</span> <span className="accent">—</span>{" "}
+          <span>compilers, accelerators, agents</span>
+        </div>
+        <div className="prose">
+          <h3>OpenXLA — HLO verifier &amp; numerical correctness</h3>
+          <p>
+            i contribute to <a href="https://github.com/openxla/xla" target="_blank" rel="noopener noreferrer">openxla/xla</a>, focused on the <em>HLO verifier</em>. my most recent merged work, <a href="https://github.com/openxla/xla/pull/40232" target="_blank" rel="noopener noreferrer">PR #40232</a> (an async-pair fix), surfaced <em>five silent crash bugs</em> in downstream tests that had been masked for months.
+          </p>
+          <p>
+            the cascade is what i love about compiler work — one verifier rule, dozens of corrected behaviors. other contributions: a scalar <em>erf</em> saturation fix and test coverage across the HLO surface. recently accepted into the <em>TPU Builder</em> program.
+          </p>
+
+          <div className="stats">
+            <div className="cell">
+              <div className="n">500<span className="unit">+</span></div>
+              <div className="l">servers patched<br />across cona ops</div>
+            </div>
+            <div className="cell">
+              <div className="n">5<span className="unit">bugs</span></div>
+              <div className="l">silent crashes<br />surfaced by pr #40232</div>
+            </div>
+            <div className="cell">
+              <div className="n">96.6<span className="unit">%</span></div>
+              <div className="l">throughput recovered<br />in dr validation</div>
+            </div>
+            <div className="cell">
+              <div className="n">62k<span className="unit">–93k</span></div>
+              <div className="l">instruction tokens<br />helix replaces</div>
+            </div>
+          </div>
+
+          <h3>Cross-platform inference benchmarking</h3>
+          <p>
+            a paper-in-progress comparing <em>TPU v6e</em>, <em>H200</em>, and <em>MI300X</em> across realistic inference workloads — the kind of numbers everyone wants when picking infrastructure but nobody publishes openly.
+          </p>
+          <p>
+            what i find compelling is how often the intuitive answer turns out to be wrong once you actually measure across <em>batch sizes</em>, <em>sequence lengths</em>, and <em>memory regimes</em>. accelerator choice is downstream of workload shape.
+          </p>
+
+          <h3>GPU observability for NRP — GSoC 2025</h3>
+          <p>
+            with OSPO at UC Santa Cruz, i built a containerized agentic platform for the <em>National Research Platform</em> (70+ institutions, 3 continents) — ingesting Prometheus metrics to power GenAI narratives and root-cause analyses in the Seam portal. co-authored <a href="https://arxiv.org/abs/2507.00418" target="_blank" rel="noopener noreferrer">arXiv 2507.00418</a>.
+          </p>
+
+          <h3>Project Helix — ontology-first agents at CONA</h3>
+          <p>
+            at <em>CONA Services</em> i lead Helix, replacing bloated agent instruction files (62K–110K tokens) with a structured knowledge layer on <em>Cosmos DB Gremlin</em>, <em>Azure AI Search</em>, and <em>Graphiti</em>. the hypothesis: agent quality degrades as instructions grow, but <em>ontologies don&apos;t</em>.
+          </p>
+          <p>
+            this sits underneath <em>ZENO</em>, a 16-node LangGraph pipeline with seven specialist agents and a Splunk MCP gateway.
+          </p>
+
+          <h3>Numina AI — workflow infrastructure for small CPA firms</h3>
+          <p>
+            i&apos;m co-founder of <a href="#">Numina</a>, building AI-native workflow infrastructure for the underserved middle of accounting: small CPA firms serving SMBs. what i find compelling is the shape of the market — <em>too small for Big 4, too complex for off-the-shelf SaaS</em>, and workflows that look nearly identical across hundreds of firms.
+          </p>
+        </div>
+      </main>
+
+      <aside className="right-rail">
+        <RailTile klass="e" label="hlo trace" />
+        <RailTile klass="f" label="benchmark plot" aspect="wide" />
+        <RailTile klass="c" label="gpu rack" />
+        <RailTile klass="d" label="helix diagram" aspect="wide" />
+        <RailTile klass="b" label="numina, sketches" />
+      </aside>
+    </div>
+  );
+}
+
+function Experience() {
+  return (
+    <div id="experience" className="body-wrap">
+      <aside className="sidebar">
+        <div className="section-label">
+          experiences <em>along the way</em>
+        </div>
+        <p>a non-exhaustive list — pieced together from full-time work, summers, fellowships, and the occasional prize.</p>
+      </aside>
+
+      <main className="main">
+        <div className="sect-prefix">
+          <span>§ 03 / experience</span> <span className="accent">—</span>{" "}
+          <span>full-time, summers, fellowships</span>
+        </div>
+        <ol className="numlist">
+          <li>
+            <span className="n">01</span>
+            <span className="b">
+              <em>AI Solutions Engineer</em> at CONA Services (Coca-Cola bottling operations), where i shipped the <em>Patching Status Tracking System</em> — React dashboard, Azure Logic Apps orchestration, a 13-tool MCP server on Azure Functions — coordinating maintenance across 500+ servers and 11 teams
+            </span>
+          </li>
+          <li>
+            <span className="n">02</span>
+            <span className="b">
+              <em>DR validation system</em> at CONA using FastAPI + React, recovering <em>96.6% of throughput</em> in disaster scenarios
+            </span>
+          </li>
+          <li>
+            <span className="n">03</span>
+            <span className="b">
+              <em>Google Summer of Code 2025</em> with OSPO at UC Santa Cruz, building GPU observability for the National Research Platform across A100, GH200, L40, and RTX 3090
+            </span>
+          </li>
+          <li>
+            <span className="n">04</span>
+            <span className="b">
+              <em>Genisys Venture Analyst</em> at Kaplan Institute, running due diligence on deep-tech projects and helping shape a <em>$6M TechForward</em> investment thesis
+            </span>
+          </li>
+          <li>
+            <span className="n">05</span>
+            <span className="b">
+              <em>Grainger Computing Innovation Prize</em> — 2nd Runner-Up for <em>H2.0 Resilience</em>, an explainable-AI flood risk tool that reduced evaluation time by 90%
+            </span>
+          </li>
+          <li>
+            <span className="n">06</span>
+            <span className="b">
+              earlier on: <em>machine learning research</em> at VIGA Entertainment on real-time facial motion capture in Unreal Engine, and founding <em>SIGGRAPH BNMIT</em> during undergrad in Bangalore
+            </span>
+          </li>
+          <li>
+            <span className="n">07</span>
+            <span className="b">
+              <em>Dartmouth Conrades Distinguished Fellowship</em>, <em>UC Berkeley VC University</em> scholarship, and <em>&ldquo;Cultural Achiever of the Year&rdquo;</em> — somewhere between business, research, and being too curious for one lane
+            </span>
+          </li>
+        </ol>
+      </main>
+
+      <aside className="right-rail">
+        <RailTile klass="d" label="cona dashboard" />
+        <RailTile klass="b" label="ucsc, summer" aspect="wide" />
+        <RailTile klass="f" label="kaplan, demo day" />
+        <RailTile klass="c" label="award night" aspect="wide" />
+      </aside>
+    </div>
+  );
+}
+
+function SiteFooter() {
+  const now = new Date();
+  const yyyymm = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, "0")}`;
+  return (
+    <>
+      <footer>
+        <div>
+          © {now.getFullYear()} <em>{FULL_NAME.toLowerCase()}</em>
+        </div>
+        <div>
+          set in <em>EB Garamond</em> &amp; <em>JetBrains Mono</em>
+        </div>
+        <div
+          style={{
+            textTransform: "uppercase",
+            letterSpacing: "0.12em",
+            fontFamily: "var(--mono)",
+            fontSize: 11,
+          }}
+        >
+          {LOCATION}
+        </div>
+      </footer>
+      <div className="build">
+        <span className="tag">build {yyyymm}</span>
+        <span className="tag">v2.0.0</span>
+        <span className="tag">eb garamond / jetbrains mono</span>
+        <span className="sp" />
+        <span className="tag">handcoded · atlanta</span>
+      </div>
+    </>
+  );
+}
+
+function ModeToggle({
+  theme,
+  setTheme,
+}: {
+  theme: "paper" | "dark";
+  setTheme: (t: "paper" | "dark") => void;
+}) {
+  const isDark = theme === "dark";
+  return (
+    <button
+      className="mode-toggle"
+      onClick={() => setTheme(isDark ? "paper" : "dark")}
+      aria-label="toggle dark mode"
+    >
+      <span className="glyph" />
+      <span>{isDark ? "light" : "dark"}</span>
+    </button>
+  );
+}
+
+export default function Page() {
+  const [theme, setTheme] = useState<"paper" | "dark">("paper");
+
+  useEffect(() => {
+    let initial: "paper" | "dark" = "paper";
+    try {
+      const saved = localStorage.getItem("portfolio-theme");
+      if (saved === "dark" || saved === "paper") {
+        initial = saved;
+      } else if (
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+      ) {
+        initial = "dark";
+      }
+    } catch {}
+    setTheme(initial);
+  }, []);
+
+  useEffect(() => {
+    document.body.classList.remove("theme-paper", "theme-dark");
+    document.body.classList.add(`theme-${theme}`);
+    try {
+      localStorage.setItem("portfolio-theme", theme);
+    } catch {}
+  }, [theme]);
+
+  return (
+    <>
+      <Hero />
+      <Ticker />
+      <StickyBar />
+      <About />
+      <Research />
+      <Experience />
+      <SiteFooter />
+      <ModeToggle theme={theme} setTheme={setTheme} />
+    </>
+  );
+}
