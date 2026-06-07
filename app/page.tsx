@@ -280,7 +280,7 @@ function Research() {
 
           <h3>GPU observability for NRP — GSoC 2025</h3>
           <p>
-            with OSPO at UC Santa Cruz, i built a containerized agentic platform for the <em>National Research Platform</em> (70+ institutions, 3 continents) — ingesting Prometheus metrics to power GenAI narratives and root-cause analyses in the Seam portal. co-authored <a href="https://arxiv.org/abs/2507.00418" target="_blank" rel="noopener noreferrer">arXiv 2507.00418</a>.
+            with OSPO at UC Santa Cruz, i built a containerized agentic platform for the <em>National Research Platform</em> (70+ institutions, 3 continents) — ingesting Prometheus metrics to power GenAI narratives and root-cause analyses in the Seam portal.
           </p>
 
           <h3>Project Helix — ontology-first agents at CONA</h3>
