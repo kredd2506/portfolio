@@ -35,3 +35,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# large photo originals (web-ready copies live in public/img)
+/pics
+
+# personal working content doc
+/CONTENT.md
